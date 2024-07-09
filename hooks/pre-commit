@@ -1,0 +1,19 @@
+#!/bin/bash
+
+# Use dotnet format to format .cs files
+CHANGED_CS_FILES=$(git diff --name-only --cached --diff-filter=ACM | grep '\.cs$')
+if [ -n "$CHANGED_CS_FILES" ]; then
+    dotnet format --include $CHANGED_CS_FILES
+fi
+
+# Use prettier to format javascript files.
+git diff --name-only --cached --diff-filter=ACM | grep '\.js$' | while read -r file; do
+    npx prettier --write "$file"
+done
+
+# Re-add reformatted files to staging to include them in the commit.
+git diff --name-only --cached --diff-filter=ACM | grep -E '\.(cs|js)$' | while read -r file; do
+    git add "$file"
+done
+
+exit 0
